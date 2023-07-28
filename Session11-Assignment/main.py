@@ -118,7 +118,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
-    return parser.parse_args()
+    try:
+        import IPython  # check if running in Jupyter
+        return parser.parse_args(args=[])
+    except:
+        return parser.parse_args()
+
 
 def prepare_device():
     return 'cuda' if torch.cuda.is_available() else 'cpu'
