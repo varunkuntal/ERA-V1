@@ -158,3 +158,21 @@ def progress_bar(current, total, msg=None):
     else:
         sys.stdout.write('\n')
     sys.stdout.flush()
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def imshow(img):
+    img = img / 2 + 0.5  # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+def display_results(results):
+    for i, (img, actual, predicted) in enumerate(results):
+        print(f"Image: {i+1}")
+        print(f"Actual label: {classes[actual]}")
+        print(f"Predicted label: {classes[predicted]}")
+        imshow(torchvision.utils.make_grid(torch.Tensor(img)))
+        print("\n\n")
