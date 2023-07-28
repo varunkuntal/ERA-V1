@@ -16,7 +16,7 @@ from utils import progress_bar
 
 # Training
 def train(epoch):
-    print('\nEpoch: %d' % epoch + 1)
+    print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
     correct = 0
