@@ -172,10 +172,18 @@ def imshow(img):
 
 def display_results(results):
     classes = ('plane', 'car', 'bird', 'cat', 'deer',
-           'dog', 'frog', 'horse', 'ship', 'truck')
-    for i, (img, actual, predicted) in enumerate(results):
-        print(f"Image: {i+1}")
-        print(f"Actual label: {classes[actual]}")
-        print(f"Predicted label: {classes[predicted]}")
-        imshow(torchvision.utils.make_grid(torch.Tensor(img)))
-        print("\n\n")
+               'dog', 'frog', 'horse', 'ship', 'truck')
+
+    fig = plt.figure(figsize=(10,10))
+
+    # Only take first 9 results
+    for i in range(9):
+        img, actual, predicted = results[i]
+
+        ax = fig.add_subplot(3, 3, i+1)
+        ax.imshow(torchvision.utils.make_grid(torch.Tensor(img)).permute(1, 2, 0))
+        ax.axis('off')
+        ax.set_title(f"Actual: {classes[actual]} | Predicted: {classes[predicted]}")
+    
+    plt.tight_layout()
+    plt.show()
