@@ -170,6 +170,8 @@ def imshow(img):
     plt.show()
 
 def display_results(results):
+    classes = ('plane', 'car', 'bird', 'cat', 'deer',
+           'dog', 'frog', 'horse', 'ship', 'truck')
     for i, (img, actual, predicted) in enumerate(results):
         print(f"Image: {i+1}")
         print(f"Actual label: {classes[actual]}")
