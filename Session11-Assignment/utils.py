@@ -6,6 +6,8 @@ import time
 import sys
 import os
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # Image Transforms
 def image_transforms():
     transform_train = transforms.Compose([
