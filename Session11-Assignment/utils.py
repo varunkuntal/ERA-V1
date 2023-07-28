@@ -1,4 +1,5 @@
 import torch
+import torchvision
 import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
