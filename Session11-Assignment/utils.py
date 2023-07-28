@@ -3,6 +3,8 @@ import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
 import time
+import sys
+import os
 
 # Image Transforms
 def image_transforms():
@@ -67,7 +69,8 @@ def lr_scheduler(optimizer, epoch, init_lr=0.1, lr_decay_epoch=45):
 
     return optimizer
 
-
+_, term_width = os.popen('stty size', 'r').read().split()
+term_width = int(term_width)
 
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()
