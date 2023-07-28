@@ -102,7 +102,13 @@ def format_time(seconds):
         f = '0ms'
     return f
 
-_, term_width = os.popen('stty size', 'r').read().split()
+# _, term_width = os.popen('stty size', 'r').read().split()
+def get_terminal_size():
+    import shutil
+    return shutil.get_terminal_size((80, 20))
+
+term_width, _ = get_terminal_size()
+
 term_width = int(term_width)
 
 TOTAL_BAR_LENGTH = 65.
