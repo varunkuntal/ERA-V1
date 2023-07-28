@@ -114,16 +114,8 @@ def download_dataset(transform_train, transform_test):
 
     return trainloader, testloader
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-    parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
-    parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
-    try:
-        import IPython  # check if running in Jupyter
-        return parser.parse_args(args=[])
-    except:
-        return parser.parse_args()
-
+def parse_args(lr = 0.1, resume = False):
+    return lr, resume
 
 def prepare_device():
     return 'cuda' if torch.cuda.is_available() else 'cpu'
