@@ -14,18 +14,6 @@ import argparse
 from models import *
 from utils import progress_bar
 
-
-parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
-parser.add_argument('--resume', '-r', action='store_true',
-                    help='resume from checkpoint')
-args = parser.parse_args()
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-best_acc = 0  # best test accuracy
-start_epoch = 0  # start from epoch 0 or last checkpoint epoch
-
-
 # Training
 def train(epoch):
     print('\nEpoch: %d' % epoch)
@@ -84,9 +72,19 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
 
+if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+    parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
+    parser.add_argument('--resume', '-r', action='store_true',
+                        help='resume from checkpoint')
+    args = parser.parse_args()
 
-if __name__ == main:
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    best_acc = 0  # best test accuracy
+    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
+
+    
     # Data
     print('==> Preparing data..')
     transform_train = transforms.Compose([

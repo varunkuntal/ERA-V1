@@ -2,6 +2,7 @@ import torch
 import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
+import time
 
 # Image Transforms
 def image_transforms():
@@ -22,6 +23,7 @@ def image_transforms():
 
 # Grad-CAM
 def gradcam(model, input, class_idx, feature_module, target_layer_names):
+    pass
     # Implementation depends on the model and layers you want to visualize
     # Please refer to https://github.com/jacobgil/pytorch-grad-cam for full Grad-CAM implementation
 
@@ -64,3 +66,51 @@ def lr_scheduler(optimizer, epoch, init_lr=0.1, lr_decay_epoch=45):
         param_group['lr'] = lr
 
     return optimizer
+
+
+
+TOTAL_BAR_LENGTH = 65.
+last_time = time.time()
+begin_time = last_time
+def progress_bar(current, total, msg=None):
+    global last_time, begin_time
+    if current == 0:
+        begin_time = time.time()  # Reset for new bar.
+
+    cur_len = int(TOTAL_BAR_LENGTH*current/total)
+    rest_len = int(TOTAL_BAR_LENGTH - cur_len) - 1
+
+    sys.stdout.write(' [')
+    for i in range(cur_len):
+        sys.stdout.write('=')
+    sys.stdout.write('>')
+    for i in range(rest_len):
+        sys.stdout.write('.')
+    sys.stdout.write(']')
+
+    cur_time = time.time()
+    step_time = cur_time - last_time
+    last_time = cur_time
+    tot_time = cur_time - begin_time
+
+    L = []
+    L.append('  Step: %s' % format_time(step_time))
+    L.append(' | Tot: %s' % format_time(tot_time))
+    if msg:
+        L.append(' | ' + msg)
+
+    msg = ''.join(L)
+    sys.stdout.write(msg)
+    for i in range(term_width-int(TOTAL_BAR_LENGTH)-len(msg)-3):
+        sys.stdout.write(' ')
+
+    # Go back to the center of the bar.
+    for i in range(term_width-int(TOTAL_BAR_LENGTH/2)+2):
+        sys.stdout.write('\b')
+    sys.stdout.write(' %d/%d ' % (current+1, total))
+
+    if current < total-1:
+        sys.stdout.write('\r')
+    else:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
