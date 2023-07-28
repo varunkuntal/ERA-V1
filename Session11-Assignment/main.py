@@ -23,6 +23,8 @@ def train(net, device, trainloader, criterion, optimizer, epoch):
     train_loss = 0
     correct = 0
     total = 0
+    losses = []
+
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
@@ -30,6 +32,7 @@ def train(net, device, trainloader, criterion, optimizer, epoch):
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
+        losses.append(loss.item())
 
         train_loss += loss.item()
         _, predicted = outputs.max(1)
@@ -38,6 +41,8 @@ def train(net, device, trainloader, criterion, optimizer, epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        
+    return losses
 
 def test(net, device, testloader, criterion, epoch):
     global best_acc
@@ -46,11 +51,14 @@ def test(net, device, testloader, criterion, epoch):
     correct = 0
     total = 0
     results = []  # to store images, actual labels and predicted labels
+    losses = []
+
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
             loss = criterion(outputs, targets)
+            losses.append(loss.item())
 
             test_loss += loss.item()
             _, predicted = outputs.max(1)
@@ -78,7 +86,7 @@ def test(net, device, testloader, criterion, epoch):
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
     
-    return results  # return the results
+    return results, losses  # return the results
 
 
 def get_transforms():
@@ -160,7 +168,10 @@ if __name__ == '__main__':
     net, best_acc, start_epoch = prepare_model(device, resume)
     criterion, optimizer, scheduler = prepare_optimizers(net, lr)
 
+    train_loss = []
+    test_loss = []
+
     for epoch in range(start_epoch, start_epoch+2):
-        train(net, device, trainloader, criterion, optimizer, epoch)
-        test(net, device, testloader, criterion, epoch)
+        train_loss.extend(train(net, device, trainloader, criterion, optimizer, epoch))
+        test_loss.extend(test(net, device, testloader, criterion, epoch)[1])
         scheduler.step()

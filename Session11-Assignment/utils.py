@@ -5,6 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
 import time
 import sys
+import matplotlib.pyplot as plt
 import os
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -186,4 +187,22 @@ def display_results(results):
         ax.set_title(f"Actual: {classes[actual]} | Predicted: {classes[predicted]}")
     
     plt.tight_layout()
+    plt.show()
+
+
+def plot_losses(train_losses, test_losses):
+
+    plt.figure(figsize=(12, 6))
+
+    # Plot train loss
+    plt.plot(range(len(train_losses)), train_losses, label='Train Loss')
+
+    # Plot test loss
+    plt.plot(range(len(test_losses)), test_losses, label='Test Loss')
+
+    plt.title('Train and Test Loss over time')
+    plt.xlabel('Iterations')
+    plt.ylabel('Loss')
+    plt.legend()
+
     plt.show()
