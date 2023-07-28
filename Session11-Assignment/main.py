@@ -151,15 +151,15 @@ def prepare_optimizers(net, lr):
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    lr, resume = parse_args()
 
     device = prepare_device()
 
     transform_train, transform_test = get_transforms()
     trainloader, testloader = download_dataset(transform_train, transform_test)
 
-    net, best_acc, start_epoch = prepare_model(device, args.resume)
-    criterion, optimizer, scheduler = prepare_optimizers(net, args.lr)
+    net, best_acc, start_epoch = prepare_model(device, resume)
+    criterion, optimizer, scheduler = prepare_optimizers(net, lr)
 
     for epoch in range(start_epoch, start_epoch+2):
         train(net, device, trainloader, criterion, optimizer, epoch)
