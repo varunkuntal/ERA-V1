@@ -211,6 +211,8 @@ def plot_losses(train_losses, test_losses):
     plt.show()
 
 
+from torchvision.utils import make_grid
+
 def generate_gradcam_images(model, data_loader, device, num_images=10):
     incorrect_samples = []
     model.eval()
@@ -248,12 +250,15 @@ def generate_gradcam_images(model, data_loader, device, num_images=10):
         img_tensor = torch.from_numpy(img).unsqueeze(0).to(device)  # Convert numpy array to tensor
         heatmap, result = gradcam(img_tensor, class_idx=predicted)
         
-        axarr[idx, 0].imshow(transforms.ToPILImage()(img), cmap="gray")
+        img = np.transpose(img, (1, 2, 0))  # Change (C, H, W) to (H, W, C) for displaying the image
+        
+        axarr[idx, 0].imshow(img, cmap="gray")
         axarr[idx, 0].set_title(f"Predicted: {predicted}, Actual: {actual}")
         
         axarr[idx, 1].imshow(transforms.ToPILImage()(result), cmap="gray")
         axarr[idx, 1].set_title("GradCAM")
     
     plt.show()
+
 
 # generate_gradcam_images(net, testloader, device)
