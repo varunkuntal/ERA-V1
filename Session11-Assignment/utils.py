@@ -248,7 +248,7 @@ def generate_gradcam_images(model, data_loader, device, num_images=10):
     
     gradcam = GradCAM(model, target_layer=model.module.layer4[-1])
     
-    fig, axarr = plt.subplots(nrows=num_images, ncols=2)
+    fig, axarr = plt.subplots(nrows=num_images*2, ncols=1, figsize=(10, num_images*5))  # Increase the figure size
     
     for idx, (img, actual, predicted) in enumerate(incorrect_samples):
         img_tensor = torch.from_numpy(img).unsqueeze(0).to(device)  # Convert numpy array to tensor
@@ -256,13 +256,15 @@ def generate_gradcam_images(model, data_loader, device, num_images=10):
         
         img = np.transpose(img, (1, 2, 0))  # Change (C, H, W) to (H, W, C) for displaying the image
         
-        axarr[idx, 0].imshow(img, cmap="gray")
-        axarr[idx, 0].set_title(f"Predicted: {predicted}, Actual: {actual}")
+        axarr[idx*2].imshow(img)
+        axarr[idx*2].set_title(f"Predicted: {predicted}, Actual: {actual}")
         
-        axarr[idx, 1].imshow(transforms.ToPILImage()(result), cmap="gray")
-        axarr[idx, 1].set_title("GradCAM")
+        axarr[idx*2+1].imshow(transforms.ToPILImage()(result), cmap="gray")
+        axarr[idx*2+1].set_title("GradCAM")
     
+    plt.tight_layout()
     plt.show()
+
 
 
 # generate_gradcam_images(net, testloader, device)
