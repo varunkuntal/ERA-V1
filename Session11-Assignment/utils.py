@@ -212,43 +212,47 @@ def plot_losses(train_losses, test_losses):
 
 
 def generate_gradcam_images(model, data_loader, device, num_images=10):
-    model.eval()
     incorrect_samples = []
-    classes = ('plane', 'car', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck')
-
-    for inputs, labels in data_loader:
-        inputs = inputs.to(device)
-        labels = labels.to(device)
-
-        outputs = model(inputs)
-        _, preds = torch.max(outputs, 1)
-
-        incorrect_indices = (preds != labels).nonzero()[:, 0]
-
-        for idx in incorrect_indices:
-            incorrect_samples.append((inputs[idx], labels[idx], preds[idx]))
-            
-            if len(incorrect_samples) >= num_images:
-                break
-
+    model.eval()
+    
+    # Iterate over the test data
+    for data, target in data_loader:
+        # Move the data to the correct device
+        data, target = data.to(device), target.to(device)
+        
+        # Forward pass
+        output = model(data)
+        
+        # Get the predicted classes
+        pred = output.argmax(dim=1, keepdim=True)
+        
+        # Find the incorrectly classified samples
+        incorrect_idx = ~pred.eq(target.view_as(pred)).squeeze()
+        incorrect_data = data[incorrect_idx]
+        incorrect_target = target[incorrect_idx]
+        incorrect_pred = pred[incorrect_idx]
+        
+        # Save the incorrectly classified samples
+        for data, target, pred in zip(incorrect_data, incorrect_target, incorrect_pred):
+            incorrect_samples.append((data.cpu().numpy(), target.cpu().numpy(), pred.cpu().numpy()))
+        
+        # Exit the loop once num_images samples have been collected
         if len(incorrect_samples) >= num_images:
             break
-
-    gradcam = GradCAM(model, target_layer=model.layer4[-1])
+    
+    gradcam = GradCAM(model, target_layer=model.module.layer4[-1])
     
     fig, axarr = plt.subplots(nrows=num_images, ncols=2)
-
+    
     for idx, (img, actual, predicted) in enumerate(incorrect_samples):
-        mask, _ = gradcam(img.unsqueeze(0))
-        heatmap, result = visualize_cam(mask, img.unsqueeze(0))
-
-        axarr[idx, 0].imshow(transforms.ToPILImage()(img))
-        axarr[idx, 0].title.set_text(f"Actual: {classes[actual]}")
-
-        axarr[idx, 1].imshow(transforms.ToPILImage()(heatmap))
-        axarr[idx, 1].title.set_text(f"Predicted: {classes[predicted]}")
-
+        heatmap, result = gradcam(img, class_idx=predicted)
+        
+        axarr[idx, 0].imshow(transforms.ToPILImage()(img), cmap="gray")
+        axarr[idx, 0].set_title(f"Predicted: {predicted}, Actual: {actual}")
+        
+        axarr[idx, 1].imshow(transforms.ToPILImage()(result), cmap="gray")
+        axarr[idx, 1].set_title("GradCAM")
+    
     plt.show()
 
 # generate_gradcam_images(net, testloader, device)
