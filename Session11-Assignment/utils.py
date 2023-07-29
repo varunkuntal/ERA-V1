@@ -245,7 +245,8 @@ def generate_gradcam_images(model, data_loader, device, num_images=10):
     fig, axarr = plt.subplots(nrows=num_images, ncols=2)
     
     for idx, (img, actual, predicted) in enumerate(incorrect_samples):
-        heatmap, result = gradcam(img, class_idx=predicted)
+        img_tensor = torch.from_numpy(img).unsqueeze(0).to(device)  # Convert numpy array to tensor
+        heatmap, result = gradcam(img_tensor, class_idx=predicted)
         
         axarr[idx, 0].imshow(transforms.ToPILImage()(img), cmap="gray")
         axarr[idx, 0].set_title(f"Predicted: {predicted}, Actual: {actual}")
