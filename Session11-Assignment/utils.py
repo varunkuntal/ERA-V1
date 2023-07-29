@@ -236,6 +236,10 @@ def generate_gradcam_images(model, data_loader, device, num_images=10):
         
         # Save the incorrectly classified samples
         for data, target, pred in zip(incorrect_data, incorrect_target, incorrect_pred):
+            # Check if num_images samples have already been collected
+            if len(incorrect_samples) >= num_images:
+                break
+
             incorrect_samples.append((data.cpu().numpy(), target.cpu().numpy(), pred.cpu().numpy()))
         
         # Exit the loop once num_images samples have been collected
