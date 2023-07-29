@@ -7,6 +7,9 @@ import time
 import sys
 import matplotlib.pyplot as plt
 import os
+from gradcam import GradCAM, GradCAMpp
+from gradcam.utils import visualize_cam
+from torchvision.utils import make_grid, save_image
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -206,3 +209,46 @@ def plot_losses(train_losses, test_losses):
     plt.legend()
 
     plt.show()
+
+
+def generate_gradcam_images(model, data_loader, device, num_images=10):
+    model.eval()
+    incorrect_samples = []
+    classes = ('plane', 'car', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck')
+
+    for inputs, labels in data_loader:
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+
+        outputs = model(inputs)
+        _, preds = torch.max(outputs, 1)
+
+        incorrect_indices = (preds != labels).nonzero()[:, 0]
+
+        for idx in incorrect_indices:
+            incorrect_samples.append((inputs[idx], labels[idx], preds[idx]))
+            
+            if len(incorrect_samples) >= num_images:
+                break
+
+        if len(incorrect_samples) >= num_images:
+            break
+
+    gradcam = GradCAM(model, target_layer=model.layer4[-1])
+    
+    fig, axarr = plt.subplots(nrows=num_images, ncols=2)
+
+    for idx, (img, actual, predicted) in enumerate(incorrect_samples):
+        mask, _ = gradcam(img.unsqueeze(0))
+        heatmap, result = visualize_cam(mask, img.unsqueeze(0))
+
+        axarr[idx, 0].imshow(transforms.ToPILImage()(img))
+        axarr[idx, 0].title.set_text(f"Actual: {classes[actual]}")
+
+        axarr[idx, 1].imshow(transforms.ToPILImage()(heatmap))
+        axarr[idx, 1].title.set_text(f"Predicted: {classes[predicted]}")
+
+    plt.show()
+
+# generate_gradcam_images(net, testloader, device)
